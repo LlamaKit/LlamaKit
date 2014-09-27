@@ -5,40 +5,40 @@
 
 import Foundation
 
-/// A success `Result` returning `value`
-/// This form is preferred to `Result.Success(Box(value))` because it
-// does not require dealing with `Box()`
-public func success<T>(value: T) -> Result<T> {
-  return .Success(Box(value))
-}
-
-/// A failure `Result` returning `error`
-/// The default error is an empty one so that `failure()` is legal
-/// To assign this to a variable, you must explicitly give a type.
-/// Otherwise the compiler has no idea what `T` is. This form is preferred
-/// to Result.Failure(error) because it provides a useful default.
-/// For example:
-///    let fail: Result<Int> = failure()
-///
-public func failure<T>(_ error: NSError = NSError(domain: "", code: 0, userInfo: nil)) -> Result<T> {
-  return .Failure(error)
-}
-
 /// Container for a successful value (T) or a failure with an NSError
 public enum Result<T> {
   case Success(Box<T>)
   case Failure(NSError)
 
+  /// A success `Result` returning `value`
+  /// This form is preferred to `Result.Success(Box(value))` because it
+  // does not require dealing with `Box()`
+  public static func success<T>(value: T) -> Result<T> {
+    return .Success(Box(value))
+  }
+  
+  /// A failure `Result` returning `error`
+  /// The default error is an empty one so that `failure()` is legal
+  /// To assign this to a variable, you must explicitly give a type.
+  /// Otherwise the compiler has no idea what `T` is. This form is preferred
+  /// to Result.Failure(error) because it provides a useful default.
+  /// For example:
+  ///    let fail: Result<Int> = failure()
+  ///
+  public static func failure<T>(error: NSError) -> Result<T> {
+    return .Failure(error)
+  }
+  
   /// The successful value as an Optional
   public func value() -> T? {
     switch self {
-    case .Success(let box): return box.unbox
+    case let .Success(box): return box.unbox
     case .Failure(_): return nil
     }
   }
 
   /// The failing error as an Optional
-  public func error() -> NSError? {
+  public func errorValue() -> NSError? {
     switch self {
     case .Success(_): return nil
     case .Failure(let err): return err
@@ -56,20 +56,33 @@ public enum Result<T> {
   /// Mapping a failure returns a new failure without evaluating the transform
   public func map<U>(transform: T -> U) -> Result<U> {
     switch self {
-    case Success(let box):
-      return .Success(Box(transform(box.unbox)))
-    case Failure(let err):
-      return .Failure(err)
+    case let Success(box):
+      return Result.success(transform(box.unbox))
+    case let Failure(err):
+      return Result.failure(err)
     }
   }
 
+  public static func pure<T>(value: T) -> Result<T> {
+    return Result.success(value)
+  }
+  
+  public func apply<U>(transform: Result<T -> U>) -> Result<U> {
+    switch (self, transform) {
+    case let (Success(value), Success(f)): return Result.success(f.unbox(value.unbox))
+    case let (Failure(error), _): return Result.failure(error)
+    case let (_, Failure(error)): return Result.failure(error)
+    default: return error("impossible")
+    }
+  }
+  
   /// Return a new result after applying a transformation (that itself
   /// returns a result) to a successful value.
   /// Flat mapping a failure returns a new failure without evaluating the transform
   public func flatMap<U>(transform:T -> Result<U>) -> Result<U> {
     switch self {
-    case Success(let value): return transform(value.unbox)
-    case Failure(let error): return .Failure(error)
+    case let Success(value): return transform(value.unbox)
+    case let Failure(error): return Result.failure(error)
     }
   }
 }
@@ -77,9 +90,9 @@ public enum Result<T> {
 extension Result: Printable {
   public var description: String {
     switch self {
-    case .Success(let box):
+    case let .Success(box):
       return "Success: \(box.unbox)"
-    case .Failure(let error):
+    case let .Failure(error):
       return "Failure: \(error)"
     }
   }
@@ -91,10 +104,10 @@ extension Result: Printable {
 /// conformance based on your specialization.
 public func == <T: Equatable>(lhs: Result<T>, rhs: Result<T>) -> Bool {
   switch (lhs, rhs) {
-  case (.Success(_), .Success(_)): return lhs.value() == rhs.value()
-  case (.Success(_), .Failure(_)): return false
-  case (.Failure(let lhsErr), .Failure(let rhsErr)): return lhsErr == rhsErr
-  case (.Failure(_), .Success(_)): return false
+  case     (.Success(_), .Success(_)): return lhs.value() == rhs.value()
+  case     (.Success(_), .Failure(_)): return false
+  case let (.Failure(lhsErr), .Failure(rhsErr)): return lhsErr == rhsErr
+  case     (.Failure(_), .Success(_)): return false
   }
 }
 
@@ -107,20 +120,9 @@ public func != <T: Equatable>(lhs: Result<T>, rhs: Result<T>) -> Bool {
 ///    .Failure(NSError()) ?? 0 ==> 0
 func ??<T>(result: Result<T>, defaultValue: @autoclosure () -> T) -> T {
   switch result {
-  case .Success(let value):
+  case let .Success(value):
     return value.unbox
-  case .Failure(let error):
+  case let .Failure(error):
     return defaultValue()
   }
-}
-
-//
-// Box
-//
-
-/// Due to current swift limitations, we have to include this Box in Result.
-/// Swift cannot handle an enum with multiple associated data (A, NSError) where one is of unknown size (A)
-final public class Box<T> {
-  let unbox: T
-  init(_ value: T) { self.unbox = value }
 }

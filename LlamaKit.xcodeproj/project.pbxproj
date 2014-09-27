@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		59163D8819D674B700669A4B /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59163D8719D674B700669A4B /* Box.swift */; };
+		59163D8E19D6791300669A4B /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59163D8D19D6791300669A4B /* Error.swift */; };
 		FB2F8D8719BF637B00E4C49E /* LlamaKit.h in Headers */ = {isa = PBXBuildFile; fileRef = FB2F8D8619BF637B00E4C49E /* LlamaKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FB2F8D9119BF637B00E4C49E /* ResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2F8D9019BF637B00E4C49E /* ResultTests.swift */; };
 		FB2F8D9B19BF661000E4C49E /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2F8D9A19BF661000E4C49E /* Result.swift */; };
@@ -14,6 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		59163D8719D674B700669A4B /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
+		59163D8D19D6791300669A4B /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		FB2F8D8119BF637B00E4C49E /* LlamaKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LlamaKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB2F8D8519BF637B00E4C49E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FB2F8D8619BF637B00E4C49E /* LlamaKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LlamaKit.h; sourceTree = "<group>"; };
@@ -68,6 +72,8 @@
 			children = (
 				FB2F8D8619BF637B00E4C49E /* LlamaKit.h */,
 				FB2F8D9A19BF661000E4C49E /* Result.swift */,
+				59163D8D19D6791300669A4B /* Error.swift */,
+				59163D8719D674B700669A4B /* Box.swift */,
 				FB2F8D8419BF637B00E4C49E /* Supporting Files */,
 			);
 			path = LlamaKit;
@@ -206,6 +212,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FB2F8D9B19BF661000E4C49E /* Result.swift in Sources */,
+				59163D8819D674B700669A4B /* Box.swift in Sources */,
+				59163D8E19D6791300669A4B /* Error.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
