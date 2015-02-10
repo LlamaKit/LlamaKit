@@ -128,7 +128,7 @@ extension Result: Printable {
 /// Failure coalescing
 ///    .Success(Box(42)) ?? 0 ==> 42
 ///    .Failure(NSError()) ?? 0 ==> 0
-public func ??<T,E>(result: Result<T,E>, defaultValue: @autoclosure () -> T) -> T {
+public func ??<T,E>(result: Result<T,E>, @autoclosure defaultValue:  () -> T) -> T {
   switch result {
   case .Success(let value):
     return value.unbox
