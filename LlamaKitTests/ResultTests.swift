@@ -36,7 +36,7 @@ class ResultTests: XCTestCase {
 
   func testFailureReturnsError() {
     let f: Result<Int> = failure(self.err)
-    XCTAssertEqual(f.error() as NSError, self.err)
+    XCTAssertEqual(f.error() as! NSError, self.err)
   }
 
   func testFailureReturnsNoValue() {
@@ -54,19 +54,19 @@ class ResultTests: XCTestCase {
     let x: Result<Int> = failure(self.err)
     let y = x.map(-)
     XCTAssertNil(y.value())
-    XCTAssertEqual(y.error() as NSError, self.err)
+    XCTAssertEqual(y.error() as! NSError, self.err)
   }
 
   func testMapSuccessNewType() {
     let x = success("abcd")
-    let y = x.map { countElements($0) }
+    let y = x.map {count($0) }
     XCTAssertEqual(y.value()!, 4)
   }
 
   func testMapFailureNewType() {
     let x: Result<String> = failure(self.err)
-    let y = x.map { countElements($0) }
-    XCTAssertEqual(y.error() as NSError, self.err)
+    let y = x.map { count($0) }
+    XCTAssertEqual(y.error() as! NSError, self.err)
   }
 
   func doubleSuccess(x: Int) -> Result<Int> {
@@ -86,19 +86,19 @@ class ResultTests: XCTestCase {
   func testFlatMapSuccessFailure() {
     let x = success(42)
     let y = x.flatMap(doubleFailure)
-    XCTAssertEqual(y.error() as NSError, self.err)
+    XCTAssertEqual(y.error() as! NSError, self.err)
   }
 
   func testFlatMapFailureSuccess() {
     let x: Result<Int> = failure(self.err2)
     let y = x.flatMap(doubleSuccess)
-    XCTAssertEqual(y.error() as NSError, self.err2)
+    XCTAssertEqual(y.error() as! NSError, self.err2)
   }
 
   func testFlatMapFailureFailure() {
     let x: Result<Int> = failure(self.err2)
     let y = x.flatMap(doubleFailure)
-    XCTAssertEqual(y.error() as NSError, self.err2)
+    XCTAssertEqual(y.error() as! NSError, self.err2)
   }
 
   func testDescriptionSuccess() {
@@ -133,8 +133,8 @@ class ResultTests: XCTestCase {
   }
 
   func testTryTFailure() {
-    let result = try(makeTryFunction(nil as Int?, false))
-    XCTAssertEqual(result ?? 43, 43)
+    let result = try(makeTryFunction(Optional<String>.None, false))
+    XCTAssertEqual(result ?? "a", "a")
     XCTAssert(result.description.hasPrefix("Failure: Error Domain=domain Code=1 "))
   }
 
