@@ -64,6 +64,17 @@ public func try(f: NSErrorPointer -> Bool, file: String = __FILE__, line: Int = 
   return f(&error) ? success(()) : failure(error ?? defaultError(file: file, line: line))
 }
 
+/// Convenience method: Constructs a `Result` trying to unwrap an Optional 
+/// Returns a failure with the supplied error in case the Optional is `nil`
+public func valueOrError<T,E>(value: T?, error: E) -> Result<T, E> {
+  if let value = value {
+    return success(value)
+  }
+  else {
+    return failure(error)
+  }
+}
+
 /// Container for a successful value (T) or a failure with an E
 public enum Result<T,E> {
   case Success(Box<T>)
@@ -110,6 +121,31 @@ public enum Result<T,E> {
     switch self {
     case Success(let value): return transform(value.unbox)
     case Failure(let error): return .Failure(error)
+    }
+  }
+  
+  /// Block-based version of 'map'
+  /// Calls completion after applying a transformation to a successful value.
+  /// Mapping a failure calls the completion with a new failure without evaluating the transform
+  public func map<U>(transform: (T, U -> Void) -> Void, completion: (Result<U,E>) -> Void) {
+    switch self {
+    case Success(let box):
+      transform(box.unbox, { r in completion(.Success(Box(r))) })
+    case Failure(let err):
+      completion(.Failure(err))
+    }
+  }
+
+  /// Block-based version of 'flatMap'
+  /// Calls completion after applying a transformation (that itself calls a completion
+  /// expecting a result) to a successful value.
+  /// Mapping a failure calls the completion with a new failure without evaluating the transform
+  public func flatMap<U>(transform: (T, (Result<U,E>) -> Void) -> Void, completion: (Result<U,E>) -> Void) {
+    switch self {
+    case Success(let box):
+      transform(box.unbox, completion)
+    case Failure(let err):
+      completion(.Failure(err))
     }
   }
 }
