@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.license      = "MIT"
   s.author             = { "Rob Napier" => "robnapier@gmail.com" }
   s.social_media_url   = "https://twitter.com/cocoaphony"
-  s.ios.deployment_target = "8.3"
-  s.osx.deployment_target = "10.10"
+  s.ios.deployment_target = "8.0"
+  s.osx.deployment_target = "10.9"
   s.source       = { :git => "https://github.com/LlamaKit/LlamaKit.git", :tag => "v#{s.version}" }
   s.source_files  = "LlamaKit/*.swift"
   s.requires_arc = true
