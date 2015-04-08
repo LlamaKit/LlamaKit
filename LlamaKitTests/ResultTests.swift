@@ -76,7 +76,7 @@ class ResultTests: XCTestCase {
   func doubleFailure(x: Int) -> Result<Int, NSError> {
     return failure(self.err)
   }
-
+  
   func testFlatMapSuccessSuccess() {
     let x: Result<Int, NSError> = success(42)
     let y = x.flatMap(doubleSuccess)
@@ -99,6 +99,66 @@ class ResultTests: XCTestCase {
     let x: Result<Int, NSError> = failure(self.err2)
     let y = x.flatMap(doubleFailure)
     XCTAssertEqual(y.error!, self.err2)
+  }
+  
+  func intToString(input: Int, completion: String -> Void) {
+    let stringValue = "\(input)"
+    completion(stringValue)
+  }
+  
+  func testBlockBasedMapSuccessNewType() {
+    let x: Result<Int, NSError> = success(42)
+    x.map (self.intToString) { r in
+      XCTAssertEqual(r.value!, "42")
+    }
+  }
+  
+  func testBlockBasedMapFailureNewType() {
+    let x: Result<Int, NSError> = failure(self.err)
+    x.map (self.intToString) { r in
+      XCTAssertEqual(r.error!, self.err)
+    }
+  }
+  
+  func stringToInt(input: String, completion: (Result<Int, NSError>) -> Void) {
+    if let intValue = input.toInt() {
+      completion(success(intValue))
+    }
+    else {
+      completion(failure(self.err))
+    }
+  }
+  
+  func stringToFailure(input: String, completion: (Result<Int, NSError>) -> Void) {
+    completion(failure(self.err))
+  }
+  
+  func testBlockBasedFlatMapSuccessSuccess() {
+    let x: Result<String, NSError> = success("42")
+    x.flatMap(self.stringToInt) { r in
+      XCTAssertEqual(r.value!, 42)
+    }
+  }
+  
+  func testBlockBasedFlatMapSuccessFailure() {
+    let x: Result<String, NSError> = success("abc")
+    x.flatMap(self.stringToInt) { r in
+      XCTAssertEqual(r.error!, self.err)
+    }
+  }
+  
+  func testBlockBasedFlatMapFailureSuccess() {
+    let x: Result<String, NSError> = failure(self.err2)
+    x.flatMap(self.stringToInt) { r in
+      XCTAssertEqual(r.error!, self.err2)
+    }
+  }
+  
+  func testBlockBasedFlatMapFailureFailure() {
+    let x: Result<String, NSError> = failure(self.err2)
+    x.flatMap(self.stringToFailure) { r in
+      XCTAssertEqual(r.error!, self.err2)
+    }
   }
 
   func testDescriptionSuccess() {

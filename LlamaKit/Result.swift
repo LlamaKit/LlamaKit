@@ -112,6 +112,31 @@ public enum Result<T,E> {
     case Failure(let error): return .Failure(error)
     }
   }
+  
+  /// Block-based version of 'map'
+  /// Calls completion after applying a transformation to a successful value.
+  /// Mapping a failure calls the completion with a new failure without evaluating the transform
+  public func map<U>(transform: (T, U -> Void) -> Void, completion: (Result<U,E>) -> Void) {
+    switch self {
+    case Success(let box):
+      transform(box.unbox, { r in completion(.Success(Box(r))) })
+    case Failure(let err):
+      completion(.Failure(err))
+    }
+  }
+
+  /// Block-based version of 'flatMap'
+  /// Calls completion after applying a transformation (that itself calls a completion
+  /// expecting a result) to a successful value.
+  /// Mapping a failure calls the completion with a new failure without evaluating the transform
+  public func flatMap<U>(transform: (T, (Result<U,E>) -> Void) -> Void, completion: (Result<U,E>) -> Void) {
+    switch self {
+    case Success(let box):
+      transform(box.unbox, completion)
+    case Failure(let err):
+      completion(.Failure(err))
+    }
+  }
 }
 
 extension Result: Printable {
