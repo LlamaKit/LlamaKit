@@ -54,14 +54,14 @@ public func failure<T,E>(error: E) -> Result<T,E> {
 /// Construct a `Result` using a block which receives an error parameter.
 /// Expected to return non-nil for success.
 
-public func try<T>(f: NSErrorPointer -> T?, file: String = __FILE__, line: Int = __LINE__) -> Result<T,NSError> {
+public func `try`<T>(f: NSErrorPointer -> T?, file: String = __FILE__, line: Int = __LINE__) -> Result<T,NSError> {
   var error: NSError?
-  return f(&error).map(success) ?? failure(error ?? defaultError(file: file, line: line))
+  return f(&error).map(success) ?? failure(error ?? defaultError(file, line: line))
 }
 
-public func try(f: NSErrorPointer -> Bool, file: String = __FILE__, line: Int = __LINE__) -> Result<(),NSError> {
+public func `try`(f: NSErrorPointer -> Bool, file: String = __FILE__, line: Int = __LINE__) -> Result<(),NSError> {
   var error: NSError?
-  return f(&error) ? success(()) : failure(error ?? defaultError(file: file, line: line))
+  return f(&error) ? success(()) : failure(error ?? defaultError(file, line: line))
 }
 
 /// Container for a successful value (T) or a failure with an E
@@ -114,7 +114,7 @@ public enum Result<T,E> {
   }
 }
 
-extension Result: Printable {
+extension Result: CustomStringConvertible {
   public var description: String {
     switch self {
     case .Success(let box):

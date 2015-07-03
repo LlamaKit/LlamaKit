@@ -59,13 +59,13 @@ class ResultTests: XCTestCase {
 
   func testMapSuccessNewType() {
     let x: Result<String, NSError> = success("abcd")
-    let y = x.map { count($0) }
+    let y = x.map { $0.characters.count }
     XCTAssertEqual(y.value!, 4)
   }
 
   func testMapFailureNewType() {
     let x: Result<String, NSError> = failure(self.err)
-    let y = x.map { count($0) }
+    let y = x.map { $0.characters.count }
     XCTAssertEqual(y.error!, self.err)
   }
 
@@ -130,21 +130,21 @@ class ResultTests: XCTestCase {
   }
 
   func testTryTSuccess() {
-    XCTAssertEqual(try(makeTryFunction(42 as Int?)) ?? 43, 42)
+    XCTAssertEqual(`try`(makeTryFunction(42 as Int?)) ?? 43, 42)
   }
 
   func testTryTFailure() {
-    let result = try(makeTryFunction(nil as String?, false))
+    let result = `try`(makeTryFunction(nil as String?, false))
     XCTAssertEqual(result ?? "abc", "abc")
     XCTAssert(result.description.hasPrefix("Failure: Error Domain=domain Code=1 "))
   }
 
   func testTryBoolSuccess() {
-    XCTAssert(try(makeTryFunction(true)).isSuccess)
+    XCTAssert(`try`(makeTryFunction(true)).isSuccess)
   }
 
   func testTryBoolFailure() {
-    let result = try(makeTryFunction(false, false))
+    let result = `try`(makeTryFunction(false, false))
     XCTAssertFalse(result.isSuccess)
     XCTAssert(result.description.hasPrefix("Failure: Error Domain=domain Code=1 "))
   }
